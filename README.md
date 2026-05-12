@@ -1,4 +1,4 @@
-# PHP MVC Scaffold
+# RaccoOn
 
 Plantilla PHP simple basada en MVC para iniciar proyectos pequeños sin cargar un framework completo. Esta base incluye un bootstrap claro, router propio, controladores, helpers, respuestas JSON, logger local opcional y una capa ActiveRecord ligera para proyectos que usen MySQL con `mysqli`.
 
