@@ -46,7 +46,7 @@ function s(mixed $html): string
  * @param string|array<int, string> $entries Frontend source entrypoint path(s).
  * @return string
  */
-function vite(string|array $entries = 'resources/js/app.ts'): string
+function vite(string|array $entries = ['resources/scss/app.scss', 'resources/js/app.ts']): string
 {
     return (new App\Support\Vite())->tags($entries);
 }

@@ -7,7 +7,10 @@ namespace App\Support;
  */
 final class Vite
 {
-    private const DEFAULT_ENTRY = 'resources/js/app.ts';
+    private const DEFAULT_ENTRIES = [
+        'resources/scss/app.scss',
+        'resources/js/app.ts',
+    ];
 
     private string $buildPath;
     private string $buildUrl;
@@ -35,20 +38,28 @@ final class Vite
      * @param string|array<int, string> $entries
      * @return string
      */
-    public function tags(string|array $entries = self::DEFAULT_ENTRY): string
+    public function tags(string|array $entries = self::DEFAULT_ENTRIES): string
     {
         $entries = is_array($entries) ? $entries : [$entries];
         $tags = [];
 
         if ($this->isRunningHot()) {
             $devServer = $this->devServerUrl();
-            $tags[] = $this->scriptTag($devServer . '/@vite/client');
+            $stylesheetTags = [];
+            $scriptTags = [$this->scriptTag($devServer . '/@vite/client')];
 
             foreach ($entries as $entry) {
-                $tags[] = $this->scriptTag($devServer . '/' . ltrim($entry, '/'));
+                $url = $devServer . '/' . ltrim($entry, '/');
+
+                if ($this->isStylesheet($entry)) {
+                    $stylesheetTags[] = $this->stylesheetTag($url);
+                    continue;
+                }
+
+                $scriptTags[] = $this->scriptTag($url);
             }
 
-            return implode(PHP_EOL, $tags);
+            return implode(PHP_EOL, [...$stylesheetTags, ...$scriptTags]);
         }
 
         foreach ($entries as $entry) {
@@ -82,7 +93,9 @@ final class Vite
             throw new \RuntimeException("Vite entry [{$entry}] is missing its output file.");
         }
 
-        $tags[] = $this->scriptTag($this->assetUrl($chunk['file']));
+        $tags[] = $this->isStylesheet($chunk['file'])
+            ? $this->stylesheetTag($this->assetUrl($chunk['file']))
+            : $this->scriptTag($this->assetUrl($chunk['file']));
 
         return $tags;
     }
@@ -160,6 +173,11 @@ final class Vite
     private function assetUrl(string $file): string
     {
         return $this->buildUrl . '/' . ltrim($file, '/');
+    }
+
+    private function isStylesheet(string $file): bool
+    {
+        return preg_match('/\.(css|scss|sass|less|styl|stylus)(\?.*)?$/', $file) === 1;
     }
 
     private function scriptTag(string $src): string

@@ -49,6 +49,7 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: {
+        styles: resolve(__dirname, 'resources/scss/app.scss'),
         app: resolve(__dirname, 'resources/js/app.ts'),
       },
     },
